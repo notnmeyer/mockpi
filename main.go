@@ -27,7 +27,9 @@ func main() {
 		w.Write([]byte(responseBody))
 	})
 
-	if err := http.ListenAndServe(":8080", nil); err != nil {
+	listenAddr := ":8080"
+	fmt.Printf("Starting server on %s...", listenAddr)
+	if err := http.ListenAndServe(listenAddr, nil); err != nil {
 		fmt.Println("server error: ", err)
 		os.Exit(1)
 	}
