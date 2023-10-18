@@ -10,3 +10,20 @@ mockpi is a tool for faking APIs. it responds to all methods and endpoints, opti
   "name": "nate"
 }
 ```
+
+
+## Run
+
+`go run main.go`
+
+## Build container image
+
+```shell
+  docker buildx create --use
+
+  # local
+  docker buildx build --platform linux/amd64 -t ghcr.io/mockpi:latest . --load
+
+  # push
+  docker buildx build --platform linux/amd64 -t ghcr.io/mockpi:latest . --push
+```
