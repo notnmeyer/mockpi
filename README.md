@@ -3,12 +3,13 @@
 mockpi is a tool for faking APIs. it responds to all methods and endpoints, optionally including a response body provided in the request as the `x-response-json` header.
 
 ```shell
-➜ curl -s -X POST -H 'x-response-json:{"id":0,"name":"nate"}' -d '{"name
-":"nate"}' localhost:8080/users/create| jq .
-{
-  "id": 0,
-  "name": "nate"
-}
+➜ curl -i -s -X POST -H 'x-response-json:{"id":0,"name":"nate"}' -d '{"name":"nate"}' localhost:8080/users/create
+HTTP/1.1 200 OK
+Date: Thu, 19 Oct 2023 04:14:33 GMT
+Content-Length: 22
+Content-Type: text/plain; charset=utf-8
+
+{"id":0,"name":"nate"}
 ```
 
 
@@ -20,10 +21,5 @@ mockpi is a tool for faking APIs. it responds to all methods and endpoints, opti
 
 ```shell
   docker buildx create --use
-
-  # local
-  docker buildx build --platform linux/amd64 -t ghcr.io/mockpi:latest . --load
-
-  # push
-  docker buildx build --platform linux/amd64 -t ghcr.io/mockpi:latest . --push
+  docker buildx build --platform linux/amd64 -t mockpi:latest . --load
 ```
