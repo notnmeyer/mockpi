@@ -6,8 +6,11 @@ on:
     branches: main
 
 jobs:
-  login:
+  run:
     runs-on: ubuntu-latest
+    permissions:
+      packages: write
+      contents: read
     steps:
       - name: Checkout
         uses: actions/checkout@v4
