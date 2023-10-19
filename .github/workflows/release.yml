@@ -2,15 +2,18 @@ name: release
 
 on:
   workflow_dispatch:
-  push:
-    branches: main
+  workflow_run:
+    workflows:
+      - test
+    branches:
+      - main
+    types:
+      - completed
+
 
 jobs:
   run:
     runs-on: ubuntu-latest
-    permissions:
-      packages: write
-      contents: read
     steps:
       - name: Checkout
         uses: actions/checkout@v4
