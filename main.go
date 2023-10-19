@@ -11,7 +11,7 @@ import (
 func main() {
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		var (
-			contentType  = "application/json"
+			contentType  = "application/json; charset=utf-8"
 			responseBody = r.Header["X-Response-Json"][0]
 			responseCode int
 		)
@@ -19,17 +19,17 @@ func main() {
 		responseCode, err := validateResponseCode(r.Header)
 		if err != nil {
 			responseBody = err.Error()
-			contentType = "text/plain"
+			contentType = "text/plain; charset=utf-8"
 		}
 
 		if !isJSON(responseBody) {
 			responseBody = fmt.Errorf("x-response-json must be valid JSON").Error()
 			responseCode = http.StatusBadRequest
-			contentType = "text/plain"
+			contentType = "text/plain; charset=utf-8"
 		}
 
-		w.WriteHeader(responseCode)
 		w.Header().Set("Content-Type", contentType)
+		w.WriteHeader(responseCode)
 		w.Write([]byte(responseBody))
 	})
 
