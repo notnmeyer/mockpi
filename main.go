@@ -28,8 +28,8 @@ func main() {
 			contentType = "text/plain; charset=utf-8"
 		}
 
-		w.WriteHeader(responseCode)
 		w.Header().Set("Content-Type", contentType)
+		w.WriteHeader(responseCode)
 		w.Write([]byte(responseBody))
 	})
 
