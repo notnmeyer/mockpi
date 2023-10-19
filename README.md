@@ -7,7 +7,7 @@ mockpi is a tool for faking APIs. it responds to all methods and endpoints, opti
 HTTP/1.1 200 OK
 Date: Thu, 19 Oct 2023 04:14:33 GMT
 Content-Length: 22
-Content-Type: text/plain; charset=utf-8
+Content-Type: application/json; charset=utf-8
 
 {"id":0,"name":"nate"}
 ```
