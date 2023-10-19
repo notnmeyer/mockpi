@@ -12,7 +12,6 @@ Content-Type: text/plain; charset=utf-8
 {"id":0,"name":"nate"}
 ```
 
-
 ## Run
 
 `go run main.go`
