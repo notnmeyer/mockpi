@@ -1,6 +1,47 @@
 package main
 
-import "testing"
+import (
+	"net/http"
+	"net/http/httptest"
+	"testing"
+)
+
+func TestHandlerValidRequest(t *testing.T) {
+	expectedContentType := "application/json; charset=utf-8"
+	expectedResponseBody := `{"foo":"bar"}`
+	expectedResponseCode := "418" // http.StatusTeapot
+
+	// set up the request
+	req, err := http.NewRequest("POST", "/test", nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	req.Header.Add("X-Response-Json", expectedResponseBody)
+	req.Header.Add("X-Response-Code", expectedResponseCode)
+
+	// make the request
+	rr := httptest.NewRecorder()
+	h := http.HandlerFunc(handler)
+	h.ServeHTTP(rr, req)
+
+	// status code
+	if status := rr.Code; status != http.StatusTeapot {
+		t.Errorf("handler returned wrong status code: got '%d' want '%d'", status, http.StatusOK)
+	}
+
+	// response body
+	if rr.Body.String() != expectedResponseBody {
+		t.Errorf("handler returned unexpected body: got '%s' want '%s'", rr.Body.String(), expectedResponseBody)
+	}
+
+	// content-type
+	if rr.Header()["Content-Type"][0] != expectedContentType {
+		t.Errorf("handler returned wrong content-type: got '%s' wanted '%s'", rr.Header()["Content-Type"][0], expectedContentType)
+	}
+}
+
+// TODO: test invalid x-response-json
+// TODO: test invalid x-response-code
 
 func TestValidateResponseCode(t *testing.T) {
 	valid := map[string][]string{
