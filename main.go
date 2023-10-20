@@ -6,12 +6,24 @@ import (
 	"net/http"
 	"os"
 	"strconv"
+
+	flag "github.com/spf13/pflag"
 )
+
+type config struct {
+	port int
+}
+
+var c config
+
+func init() {
+	flag.IntVarP(&c.port, "port", "p", 8080, "the listen port")
+	flag.Parse()
+}
 
 func main() {
 	http.HandleFunc("/", handler)
-
-	listenAddr := ":8080"
+	listenAddr := fmt.Sprintf(":%d", c.port)
 	fmt.Printf("Listening on %s...\n", listenAddr)
 	if err := http.ListenAndServe(listenAddr, nil); err != nil {
 		fmt.Println("server error: ", err)
