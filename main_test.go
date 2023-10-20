@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -9,7 +10,7 @@ import (
 func TestHandlerValidRequest(t *testing.T) {
 	expectedContentType := "application/json; charset=utf-8"
 	expectedResponseBody := `{"foo":"bar"}`
-	expectedResponseCode := "418" // http.StatusTeapot
+	expectedResponseCode := http.StatusTeapot
 
 	// set up the request
 	req, err := http.NewRequest("POST", "/test", nil)
@@ -17,7 +18,7 @@ func TestHandlerValidRequest(t *testing.T) {
 		t.Fatal(err)
 	}
 	req.Header.Add("X-Response-Json", expectedResponseBody)
-	req.Header.Add("X-Response-Code", expectedResponseCode)
+	req.Header.Add("X-Response-Code", fmt.Sprint(expectedResponseCode))
 
 	// make the request
 	rr := httptest.NewRecorder()
@@ -25,8 +26,8 @@ func TestHandlerValidRequest(t *testing.T) {
 	h.ServeHTTP(rr, req)
 
 	// status code
-	if status := rr.Code; status != http.StatusTeapot {
-		t.Errorf("handler returned wrong status code: got '%d' want '%d'", status, http.StatusOK)
+	if status := rr.Code; status != expectedResponseCode {
+		t.Errorf("handler returned wrong status code: got '%d' want '%d'", status, expectedResponseCode)
 	}
 
 	// response body
