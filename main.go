@@ -9,29 +9,7 @@ import (
 )
 
 func main() {
-	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		var (
-			contentType  = "application/json; charset=utf-8"
-			responseBody = r.Header["X-Response-Json"][0]
-			responseCode int
-		)
-
-		responseCode, err := validateResponseCode(r.Header)
-		if err != nil {
-			responseBody = err.Error()
-			contentType = "text/plain; charset=utf-8"
-		}
-
-		if !isJSON(responseBody) {
-			responseBody = fmt.Errorf("x-response-json must be valid JSON").Error()
-			responseCode = http.StatusBadRequest
-			contentType = "text/plain; charset=utf-8"
-		}
-
-		w.Header().Set("Content-Type", contentType)
-		w.WriteHeader(responseCode)
-		w.Write([]byte(responseBody))
-	})
+	http.HandleFunc("/", handler)
 
 	listenAddr := ":8080"
 	fmt.Printf("Listening on %s...\n", listenAddr)
@@ -39,6 +17,30 @@ func main() {
 		fmt.Println("server error: ", err)
 		os.Exit(1)
 	}
+}
+
+func handler(w http.ResponseWriter, r *http.Request) {
+	var (
+		contentType  = "application/json; charset=utf-8"
+		responseBody = r.Header["X-Response-Json"][0]
+		responseCode int
+	)
+
+	responseCode, err := validateResponseCode(r.Header)
+	if err != nil {
+		responseBody = err.Error()
+		contentType = "text/plain; charset=utf-8"
+	}
+
+	if !isJSON(responseBody) {
+		responseBody = fmt.Errorf("x-response-json must be valid JSON").Error()
+		responseCode = http.StatusBadRequest
+		contentType = "text/plain; charset=utf-8"
+	}
+
+	w.Header().Set("Content-Type", contentType)
+	w.WriteHeader(responseCode)
+	w.Write([]byte(responseBody))
 }
 
 func validateResponseCode(header map[string][]string) (int, error) {
