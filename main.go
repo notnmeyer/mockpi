@@ -42,9 +42,7 @@ func handler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		responseBody = err.Error()
 		contentType = "text/plain; charset=utf-8"
-	}
-
-	if !isJSON(responseBody) {
+	} else if !isJSON(responseBody) {
 		responseBody = fmt.Errorf("x-response-json must be valid JSON").Error()
 		responseCode = http.StatusBadRequest
 		contentType = "text/plain; charset=utf-8"

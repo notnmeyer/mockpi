@@ -41,8 +41,75 @@ func TestHandlerValidRequest(t *testing.T) {
 	}
 }
 
-// TODO: test invalid x-response-json
-// TODO: test invalid x-response-code
+func TestHandlerWithInvalidXResponseJson(t *testing.T) {
+	expectedContentType := "text/plain; charset=utf-8"
+	invalidResponseBody := `{"foo":bar}`
+	expectedResponseBody := "x-response-json must be valid JSON"
+	expectedResponseCode := http.StatusBadRequest
+
+	// set up the request
+	req, err := http.NewRequest("POST", "/test", nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	req.Header.Add("X-Response-Json", invalidResponseBody)
+	req.Header.Add("X-Response-Code", fmt.Sprint(expectedResponseCode))
+
+	// make the request
+	rr := httptest.NewRecorder()
+	h := http.HandlerFunc(handler)
+	h.ServeHTTP(rr, req)
+
+	// status code
+	if status := rr.Code; status != expectedResponseCode {
+		t.Errorf("handler returned wrong status code: got '%d' want '%d'", status, expectedResponseCode)
+	}
+
+	// response body
+	if rr.Body.String() != expectedResponseBody {
+		t.Errorf("handler returned unexpected body: got '%s' want '%s'", rr.Body.String(), expectedResponseBody)
+	}
+
+	// content-type
+	if rr.Header()["Content-Type"][0] != expectedContentType {
+		t.Errorf("handler returned wrong content-type: got '%s' wanted '%s'", rr.Header()["Content-Type"][0], expectedContentType)
+	}
+}
+
+func TestHandlerWithInvalidXResponseCode(t *testing.T) {
+	expectedContentType := "text/plain; charset=utf-8"
+	expectedResponseBody := "x-response-code must be a number\n"
+	invalidResponseCode := "blah"
+	expectedResponseCode := http.StatusBadRequest
+
+	// set up the request
+	req, err := http.NewRequest("POST", "/test", nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	req.Header.Add("X-Response-Json", "{}")
+	req.Header.Add("X-Response-Code", invalidResponseCode)
+
+	// make the request
+	rr := httptest.NewRecorder()
+	h := http.HandlerFunc(handler)
+	h.ServeHTTP(rr, req)
+
+	// status code
+	if status := rr.Code; status != expectedResponseCode {
+		t.Errorf("handler returned wrong status code: got '%d' want '%d'", status, expectedResponseCode)
+	}
+
+	// response body
+	if rr.Body.String() != expectedResponseBody {
+		t.Errorf("handler returned unexpected body: got '%s' want '%s'", rr.Body.String(), expectedResponseBody)
+	}
+
+	// content-type
+	if rr.Header()["Content-Type"][0] != expectedContentType {
+		t.Errorf("handler returned wrong content-type: got '%s' wanted '%s'", rr.Header()["Content-Type"][0], expectedContentType)
+	}
+}
 
 func TestValidateResponseCode(t *testing.T) {
 	valid := map[string][]string{
@@ -56,6 +123,13 @@ func TestValidateResponseCode(t *testing.T) {
 		"X-Response-Code": {"0"},
 	}
 	if _, err := validateResponseCode(invalid); err == nil {
+		t.Errorf("expected %v to be an invalid response code\n", invalid)
+	}
+
+	invalidStr := map[string][]string{
+		"X-Response-Code": {"hello"},
+	}
+	if _, err := validateResponseCode(invalidStr); err == nil {
 		t.Errorf("expected %v to be an invalid response code\n", invalid)
 	}
 }
