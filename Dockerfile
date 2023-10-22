@@ -5,6 +5,7 @@ ENV CGO_ENABLED=0 \
 WORKDIR /build
 COPY *.go .
 COPY go.mod .
+RUN go mod tidy
 RUN go build -o dist/mockpi ./main.go
 
 FROM scratch
