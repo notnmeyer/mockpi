@@ -41,11 +41,9 @@ func handler(w http.ResponseWriter, r *http.Request) {
 	responseCode, err := validateResponseCode(r.Header)
 	if err != nil {
 		responseBody = err.Error()
-		contentType = "text/plain; charset=utf-8"
 	} else if !isJSON(responseBody) {
-		responseBody = fmt.Errorf("x-response-json must be valid JSON").Error()
+		responseBody = errorResponseFormatter("x-response-json must be valid JSON").Error()
 		responseCode = http.StatusBadRequest
-		contentType = "text/plain; charset=utf-8"
 	}
 
 	w.Header().Set("Content-Type", contentType)
@@ -58,12 +56,12 @@ func validateResponseCode(header map[string][]string) (int, error) {
 		// verify its a number
 		code, err := strconv.Atoi(val[0])
 		if err != nil {
-			return http.StatusBadRequest, fmt.Errorf("x-response-code must be a number\n")
+			return http.StatusBadRequest, errorResponseFormatter("x-response-code must be a number")
 		}
 
 		// verify it falls in the range of status codes
 		if !(code >= 100 && code <= 599) {
-			return http.StatusBadRequest, fmt.Errorf("x-response-code must be between 100 and 599\n")
+			return http.StatusBadRequest, errorResponseFormatter("x-response-code must be between 100 and 599")
 		}
 
 		return code, nil
@@ -76,4 +74,8 @@ func validateResponseCode(header map[string][]string) (int, error) {
 func isJSON(s string) bool {
 	var j json.RawMessage
 	return json.Unmarshal([]byte(s), &j) == nil
+}
+
+func errorResponseFormatter(msg string) error {
+	return fmt.Errorf(`{"error":"%s"}`, msg)
 }

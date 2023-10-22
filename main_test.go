@@ -42,9 +42,8 @@ func TestHandlerValidRequest(t *testing.T) {
 }
 
 func TestHandlerWithInvalidXResponseJson(t *testing.T) {
-	expectedContentType := "text/plain; charset=utf-8"
 	invalidResponseBody := `{"foo":bar}`
-	expectedResponseBody := "x-response-json must be valid JSON"
+	expectedResponseBody := `{"error":"x-response-json must be valid JSON"}`
 	expectedResponseCode := http.StatusBadRequest
 
 	// set up the request
@@ -69,16 +68,10 @@ func TestHandlerWithInvalidXResponseJson(t *testing.T) {
 	if rr.Body.String() != expectedResponseBody {
 		t.Errorf("handler returned unexpected body: got '%s' want '%s'", rr.Body.String(), expectedResponseBody)
 	}
-
-	// content-type
-	if rr.Header()["Content-Type"][0] != expectedContentType {
-		t.Errorf("handler returned wrong content-type: got '%s' wanted '%s'", rr.Header()["Content-Type"][0], expectedContentType)
-	}
 }
 
 func TestHandlerWithInvalidXResponseCode(t *testing.T) {
-	expectedContentType := "text/plain; charset=utf-8"
-	expectedResponseBody := "x-response-code must be a number\n"
+	expectedResponseBody := `{"error":"x-response-code must be a number"}`
 	invalidResponseCode := "blah"
 	expectedResponseCode := http.StatusBadRequest
 
@@ -103,11 +96,6 @@ func TestHandlerWithInvalidXResponseCode(t *testing.T) {
 	// response body
 	if rr.Body.String() != expectedResponseBody {
 		t.Errorf("handler returned unexpected body: got '%s' want '%s'", rr.Body.String(), expectedResponseBody)
-	}
-
-	// content-type
-	if rr.Header()["Content-Type"][0] != expectedContentType {
-		t.Errorf("handler returned wrong content-type: got '%s' wanted '%s'", rr.Header()["Content-Type"][0], expectedContentType)
 	}
 }
 
@@ -143,5 +131,14 @@ func TestIsJSON(t *testing.T) {
 	invalid := `{invalid: json,}`
 	if isJSON(invalid) {
 		t.Errorf("expected %s to be invalid JSON\n", invalid)
+	}
+}
+
+func TestErrorResponseFormatter(t *testing.T) {
+	expectedErr := `{"error":"hello"}`
+	err := errorResponseFormatter("hello")
+
+	if err.Error() != expectedErr {
+		t.Errorf("got %s want %s\n", err.Error(), expectedErr)
 	}
 }
