@@ -32,53 +32,43 @@ func main() {
 }
 
 func handler(w http.ResponseWriter, r *http.Request) {
-	var (
-		contentType  = "application/json; charset=utf-8"
-		responseBody string
-		responseCode int
-	)
+	responseBody, responseCode := buildResponse(r.Header)
 
-	err := validateResponseBody(r.Header)
-	if err == nil {
-		responseBody = r.Header["X-Response-Json"][0]
-	} else {
-		responseBody = err.Error()
-		responseCode = http.StatusBadRequest
-		writeRequest(w, contentType, responseBody, responseCode)
-		return
-	}
-
-	responseCode, err = validateResponseCode(r.Header)
-	if err != nil {
-		responseBody = err.Error()
-		responseCode = http.StatusBadRequest
-		writeRequest(w, contentType, responseBody, responseCode)
-		return
-	}
-
-	writeRequest(w, contentType, responseBody, responseCode)
-
-	// w.Header().Set("Content-Type", contentType)
-	// w.WriteHeader(responseCode)
-	// w.Write([]byte(responseBody))
-}
-
-func writeRequest(w http.ResponseWriter, contentType string, responseBody string, responseCode int) {
-	w.Header().Set("Content-Type", contentType)
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(responseCode)
 	w.Write([]byte(responseBody))
 }
 
-func validateResponseBody(header map[string][]string) error {
+func buildResponse(header map[string][]string) (string, int) {
+	var (
+		responseBody string
+		responseCode int
+	)
+
+	responseBody, err := validateResponseBody(header)
+	if err != nil {
+		return err.Error(), http.StatusBadRequest
+
+	}
+
+	responseCode, err = validateResponseCode(header)
+	if err != nil {
+		return err.Error(), http.StatusBadRequest
+	}
+
+	return responseBody, responseCode
+}
+
+func validateResponseBody(header map[string][]string) (string, error) {
 	if _, exists := header["X-Response-Json"]; !exists {
-		return errorResponseFormatter("x-response-json must be set on the request")
+		return "", errorResponseFormatter("x-response-json must be set on the request")
 	}
 
 	if !isJSON(header["X-Response-Json"][0]) {
-		return errorResponseFormatter("x-response-json must be valid JSON")
+		return "", errorResponseFormatter("x-response-json must be valid JSON")
 	}
 
-	return nil
+	return header["X-Response-Json"][0], nil
 }
 
 func validateResponseCode(header map[string][]string) (int, error) {
