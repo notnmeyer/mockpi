@@ -34,21 +34,51 @@ func main() {
 func handler(w http.ResponseWriter, r *http.Request) {
 	var (
 		contentType  = "application/json; charset=utf-8"
-		responseBody = r.Header["X-Response-Json"][0]
+		responseBody string
 		responseCode int
 	)
 
-	responseCode, err := validateResponseCode(r.Header)
-	if err != nil {
+	err := validateResponseBody(r.Header)
+	if err == nil {
+		responseBody = r.Header["X-Response-Json"][0]
+	} else {
 		responseBody = err.Error()
-	} else if !isJSON(responseBody) {
-		responseBody = errorResponseFormatter("x-response-json must be valid JSON").Error()
 		responseCode = http.StatusBadRequest
+		writeRequest(w, contentType, responseBody, responseCode)
+		return
 	}
 
+	responseCode, err = validateResponseCode(r.Header)
+	if err != nil {
+		responseBody = err.Error()
+		responseCode = http.StatusBadRequest
+		writeRequest(w, contentType, responseBody, responseCode)
+		return
+	}
+
+	writeRequest(w, contentType, responseBody, responseCode)
+
+	// w.Header().Set("Content-Type", contentType)
+	// w.WriteHeader(responseCode)
+	// w.Write([]byte(responseBody))
+}
+
+func writeRequest(w http.ResponseWriter, contentType string, responseBody string, responseCode int) {
 	w.Header().Set("Content-Type", contentType)
 	w.WriteHeader(responseCode)
 	w.Write([]byte(responseBody))
+}
+
+func validateResponseBody(header map[string][]string) error {
+	if _, exists := header["X-Response-Json"]; !exists {
+		return errorResponseFormatter("x-response-json must be set on the request")
+	}
+
+	if !isJSON(header["X-Response-Json"][0]) {
+		return errorResponseFormatter("x-response-json must be valid JSON")
+	}
+
+	return nil
 }
 
 func validateResponseCode(header map[string][]string) (int, error) {
