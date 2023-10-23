@@ -41,6 +41,32 @@ func TestHandlerValidRequest(t *testing.T) {
 	}
 }
 
+func TestHandlerWithoutXResponseJson(t *testing.T) {
+	expectedResponseBody := `{"error":"x-response-json must be set on the request"}`
+	expectedResponseCode := http.StatusBadRequest
+
+	// set up the request
+	req, err := http.NewRequest("GET", "/test", nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// make the request
+	rr := httptest.NewRecorder()
+	h := http.HandlerFunc(handler)
+	h.ServeHTTP(rr, req)
+
+	// status code
+	if status := rr.Code; status != expectedResponseCode {
+		t.Errorf("handler returned wrong status code: got '%d' want '%d'", status, expectedResponseCode)
+	}
+
+	// response body
+	if rr.Body.String() != expectedResponseBody {
+		t.Errorf("handler returned unexpected body: got '%s' want '%s'", rr.Body.String(), expectedResponseBody)
+	}
+}
+
 func TestHandlerWithInvalidXResponseJson(t *testing.T) {
 	invalidResponseBody := `{"foo":bar}`
 	expectedResponseBody := `{"error":"x-response-json must be valid JSON"}`
