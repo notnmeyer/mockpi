@@ -68,13 +68,11 @@ func validateResponseBody(header map[string][]string) (string, error) {
 
 func validateResponseCode(header map[string][]string) (int, error) {
 	if val, exists := header["X-Response-Code"]; exists {
-		// verify its a number
 		code, err := strconv.Atoi(val[0])
 		if err != nil {
 			return http.StatusBadRequest, errorResponseFormatter("x-response-code must be a number")
 		}
 
-		// verify it falls in the range of status codes
 		if !(code >= 100 && code <= 599) {
 			return http.StatusBadRequest, errorResponseFormatter("x-response-code must be between 100 and 599")
 		}
@@ -82,7 +80,6 @@ func validateResponseCode(header map[string][]string) (int, error) {
 		return code, nil
 	}
 
-	// if x-response-code was not supplied default to a 200
 	return http.StatusOK, nil
 }
 
