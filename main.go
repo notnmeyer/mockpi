@@ -40,18 +40,13 @@ func handler(w http.ResponseWriter, r *http.Request) {
 }
 
 func buildResponse(header map[string][]string) (string, int) {
-	var (
-		responseBody string
-		responseCode int
-	)
-
 	responseBody, err := validateResponseBody(header)
 	if err != nil {
 		return err.Error(), http.StatusBadRequest
 
 	}
 
-	responseCode, err = validateResponseCode(header)
+	responseCode, err := validateResponseCode(header)
 	if err != nil {
 		return err.Error(), http.StatusBadRequest
 	}
