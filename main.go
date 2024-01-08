@@ -32,11 +32,20 @@ func main() {
 }
 
 func handler(w http.ResponseWriter, r *http.Request) {
-	responseBody, responseCode := buildResponse(r.Header)
+	switch r.Method {
+	case "OPTIONS":
+		w.Header().Set("Connection", "keep-alive")
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Access-Control-Allow-Methods", "*")
+		w.Header().Set("Access-Control-Max-Age", "86400")
+		w.WriteHeader(http.StatusNoContent)
+	default:
+		responseBody, responseCode := buildResponse(r.Header)
 
-	w.Header().Set("Content-Type", "application/json; charset=utf-8")
-	w.WriteHeader(responseCode)
-	w.Write([]byte(responseBody))
+		w.Header().Set("Content-Type", "application/json; charset=utf-8")
+		w.WriteHeader(responseCode)
+		w.Write([]byte(responseBody))
+	}
 }
 
 func buildResponse(header map[string][]string) (string, int) {
