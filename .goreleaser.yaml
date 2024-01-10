@@ -44,7 +44,6 @@ dockers:
     build_flag_templates:
       - "--pull"
       - "--platform=linux/amd64"
-    skip_push: true
   - image_templates:
       - "notnmeyer/mockpi:{{ .Tag }}-arm64"
     use: buildx
@@ -52,7 +51,6 @@ dockers:
       - "--pull"
       - "--platform=linux/arm64"
     goarch: arm64
-    skip_push: true
 
 docker_manifests:
   - name_template: "notnmeyer/mockpi:{{ .Tag }}"
