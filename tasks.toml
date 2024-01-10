@@ -1,0 +1,19 @@
+[tasks.run]
+cmds = ["go run main.go {{.CLI_ARGS}}"]
+
+[tasks.test]
+cmds = ["go test ./... {{.CLI_ARGS}}"]
+
+[tasks.build]
+cmds = [
+  "docker context use default",
+  "goreleaser build --clean --snapshot {{.CLI_ARGS}}",
+]
+
+# `tsk release -- --snapshot` to build images without publishing
+[tasks.release]
+cmds = [
+  "docker context use default",
+  "goreleaser release --clean {{.CLI_ARGS}}",
+]
+
