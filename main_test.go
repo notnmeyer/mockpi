@@ -125,6 +125,26 @@ func TestHandlerWithInvalidXResponseCode(t *testing.T) {
 	}
 }
 
+func TestHandlerPreflightRequest(t *testing.T) {
+	expectedResponseCode := http.StatusNoContent
+
+	// set up the request
+	req, err := http.NewRequest("OPTIONS", "/test", nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// make the request
+	rr := httptest.NewRecorder()
+	h := http.HandlerFunc(handler)
+	h.ServeHTTP(rr, req)
+
+	// status code
+	if status := rr.Code; status != expectedResponseCode {
+		t.Errorf("handler returned wrong status code: got '%d' want '%d'", status, expectedResponseCode)
+	}
+}
+
 func TestValidateResponseCode(t *testing.T) {
 	valid := map[string][]string{
 		"X-Response-Code": {"201"},
