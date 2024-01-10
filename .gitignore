@@ -1,0 +1,5 @@
+# keep .git out of telescope pickers
+.git
+
+.env
+dist/
