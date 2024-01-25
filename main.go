@@ -22,6 +22,9 @@ func init() {
 }
 
 func main() {
+	// exempt from required headers, etc.
+	http.HandleFunc("/healthcheck", healthcheckHandler)
+
 	http.HandleFunc("/", handler)
 	listenAddr := fmt.Sprintf(":%d", c.port)
 	fmt.Printf("Listening on %s...\n", listenAddr)
@@ -29,6 +32,11 @@ func main() {
 		fmt.Println("server error: ", err)
 		os.Exit(1)
 	}
+}
+
+func healthcheckHandler(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusOK)
+	w.Write([]byte("ok"))
 }
 
 func handler(w http.ResponseWriter, r *http.Request) {
