@@ -1,6 +1,6 @@
 # mockpi
 
-mockpi is a tool for faking APIs. it responds to all methods and endpoints, optionally including a response body provided in the request as the `x-response-json` header.
+mockpi is a tool for faking APIs. it responds to all methods and endpoints, returning the JSON response body provided via the `x-response-json` request header.
 
 ```shell
 ➜ curl -i -s -X POST -H 'x-response-json:{"id":0,"name":"nate"}' -d '{"name":"nate"}' localhost:8080/users/create
